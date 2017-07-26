@@ -1,0 +1,30 @@
+{
+  "name": "namugazi",
+  "version": "1.0.0",
+  "description": "NamuWiki route finder",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChalkPE/namugazi.git"
+  },
+  "keywords": [
+    "namu",
+    "wiki",
+    "route"
+  ],
+  "author": "ChalkPE <chalk@chalk.pe>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ChalkPE/namugazi/issues"
+  },
+  "homepage": "https://github.com/ChalkPE/namugazi#readme",
+  "dependencies": {
+    "mongodb": "^2.2.30"
+  },
+  "devDependencies": {
+    "standard": "^10.0.2"
+  }
+}
