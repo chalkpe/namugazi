@@ -4,7 +4,8 @@
   "description": "NamuWiki route finder",
   "main": "index.js",
   "scripts": {
-    "test": "standard"
+    "test": "standard",
+    "wiki": "mongoimport --db namu --collection wiki --type json --drop --jsonArray --file namuwiki_20170327.json"
   },
   "repository": {
     "type": "git",

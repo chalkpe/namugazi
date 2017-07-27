@@ -1,12 +1,19 @@
-const { MongoClient } = require('mongodb')
-const url = 'mongodb://localhost:27017/namu'
+const database = require('./database')
 
 /* eslint-disable no-useless-escape */
 const link = /\[\[([^\[\]]+?)(?:\|(.+?))?\]\]/g
 
+const namespacePrefix = {
+  '1': '틀:',
+  '2': '분류:',
+  '3': '파일:',
+  '4': '사용자:',
+  '6': '나무위키:'
+}
+
 function parse (text) {
   if (text.toLowerCase().startsWith('#redirect') || text.startsWith('#넘겨주기')) {
-    return text.substring(text.indexOf(' ') + 1).trim()
+    return [text.substring(text.indexOf(' ') + 1).trim()]
   }
 
   const links = []
@@ -27,7 +34,7 @@ function each (cursor, iterator) {
 }
 
 async function main () {
-  const db = await MongoClient.connect(url)
+  const db = await database()
   console.log('connected')
 
   const wiki = await db.collection('wiki')
@@ -40,12 +47,14 @@ async function main () {
   console.log('created index')
 
   const cursor = wiki
-    .find({ namespace: '0' })
-    .project({ title: 1, text: 1 })
+    .find()
+    .project({ title: 1, text: 1, namespace: 1 })
 
-  const iterator = ({ title, text }) => {
+  const iterator = ({ title, text, namespace }) => {
+    const prefix = namespacePrefix[namespace]
+    if (prefix) title = prefix + title
+
     console.log('starts', title)
-
     result
       .insertOne({ title, links: parse(text) })
       .then(() => console.log('finish', title))
@@ -56,9 +65,8 @@ async function main () {
   await db.close()
 }
 
-console.log('please enter following command before start this script')
+console.log('please `$ npm run wiki` before start this script')
 console.log('you can find namuwiki database on [[나무위키:데이터베이스 덤프]] document')
-console.log('$ mongoimport --db namu --collection wiki --type json --drop --jsonArray --file namuwiki_20170327.json')
 
 main()
   .then(result => console.log(result))
