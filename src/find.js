@@ -18,17 +18,28 @@ async function main (db) {
     console.log('dequeue', item.title)
     visitedTitles.add(item.title)
 
+    if (!process.env.ENQUEUE && item.title === last) {
+      console.log('found')
+      return fs.writeFileSync('result.txt', item.path.concat('').join('\n'))
+    }
+
     const doc = await result.findOne({ title: item.title })
     if (!doc) continue
 
-    const list = doc.links.filter(title => !visitedTitles.has(title))
+    const list = doc.links.filter(title => {
+      if (process.env.NO_DATE &&
+        (title.match(/^\d+월 \d+일$/) || title.match(/^\d+년$/))) return false
+
+      return !visitedTitles.has(title)
+    })
+
     for (let i = 0; i < list.length; i++) {
       const next = {
         title: list[i],
         path: item.path.slice().concat(list[i])
       }
 
-      if (next.title === last) {
+      if (process.env.ENQUEUE && next.title === last) {
         console.log('found')
         return fs.writeFileSync('result.txt', next.path.concat('').join('\n'))
       }
