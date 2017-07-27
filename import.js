@@ -5,8 +5,11 @@ const url = 'mongodb://localhost:27017/namu'
 const link = /\[\[([^\[\]]+?)(?:\|(.+?))?\]\]/g
 
 function parse (text) {
-  const links = []
+  if (text.toLowerCase().startsWith('#redirect') || text.startsWith('#넘겨주기')) {
+    return text.substring(text.indexOf(' ') + 1).trim()
+  }
 
+  const links = []
   text.replace(link, (match, href, value) => {
     if (href.startsWith('http://') || href.startsWith('https://')) return
     const index = href.indexOf('#')
@@ -18,43 +21,39 @@ function parse (text) {
   return [...new Set(links)].sort()
 }
 
+function each (cursor, iterator) {
+  return new Promise((resolve, reject) =>
+    cursor.forEach(iterator, err => err ? reject(err) : resolve()))
+}
+
 async function main () {
   const db = await MongoClient.connect(url)
+  console.log('connected')
 
   const wiki = await db.collection('wiki')
   const result = await db.collection('result')
 
-  const one = 1024
-  const max = await wiki.count()
+  await result.deleteMany({})
+  console.log('delete results')
 
-  console.log()
-  console.log('size     ', max)
-  await new Promise((resolve, reject) => setTimeout(resolve, 5000))
+  await result.createIndex({ title: 1 }, { unique: true })
+  console.log('created index')
 
-  for (let i = 0; i < max; i += one) await run(wiki, result, i, one)
-
-  await db.close()
-  console.log('done')
-}
-
-async function run (wiki, result, skip, limit) {
-  console.log('running  ', skip)
-
-  const docs = await wiki
-    .find({})
-    .skip(skip)
-    .limit(limit)
+  const cursor = wiki
+    .find({ namespace: '0' })
     .project({ title: 1, text: 1 })
-    .toArray()
 
-  console.log('inserting', skip)
+  const iterator = ({ title, text }) => {
+    console.log('starts', title)
 
-  const res = docs.map(doc => ({
-    title: doc.title, links: parse(doc.text)
-  }))
+    result
+      .insertOne({ title, links: parse(text) })
+      .then(() => console.log('finish', title))
+      .catch(err => console.error(err))
+  }
 
-  await result.insertMany(res)
-  console.log('finished ', skip, res.length)
+  await each(cursor, iterator)
+  await db.close()
 }
 
 console.log('please enter following command before start this script')
