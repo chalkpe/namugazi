@@ -18,7 +18,7 @@ function parse (text) {
     const index = title.indexOf('#s-')
     if (index >= 0) title = title.substring(0, index)
 
-    return [title]
+    return [title.trim()]
   }
 
   const links = []

@@ -11,19 +11,32 @@ async function go () {
   let doc = (await aggregate(result, [{ $sample: { size: 1 } }]))[0]
 
   while (true) {
-    if (!doc) break
-
     stack.push(doc.title)
-    if (!doc.links.length) break
+    const count = doc.links.length
 
-    const next = Math.floor(Math.random() * doc.links.length)
-    doc = await result.findOne({ title: doc.links[next] })
+    if (!count) {
+      console.log('no links', doc.title)
+      break
+    }
+
+    const index = Math.floor(Math.random() * count)
+    const title = doc.links[index]
+    const next = await result.findOne({ title })
+
+    if (!next) {
+      console.log('404', title)
+      break
+    }
+
+    doc = next
   }
 
   return stack
 }
 
-Promise.all([...Array(100)].map(() => go()))
-  .then(data => data.reduce((a, b) => a.length < b.length ? b : a))
+// Promise.all([...Array(100)].map(() => go()))
+//   .then(data => data.reduce((a, b) => a.length < b.length ? b : a))
+
+go()
   .then(x => console.log(x.length, x))
   .catch(console.error.bind(console))
