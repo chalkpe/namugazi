@@ -3,8 +3,7 @@ const database = require('./database')
 const aggregate = (col, agg) => new Promise((resolve, reject) =>
   col.aggregate(agg, (err, res) => err ? reject(err) : resolve(res)))
 
-async function go () {
-  const db = await database()
+async function surf (db) {
   const result = await db.collection('result')
 
   const stack = []
@@ -12,31 +11,29 @@ async function go () {
 
   while (true) {
     stack.push(doc.title)
+
     const count = doc.links.length
+    if (!count) return { stack, message: ['no links at', doc.title] }
 
-    if (!count) {
-      console.log('no links', doc.title)
-      break
-    }
+    const nextDocs = await Promise.all(
+      doc.links.map(title => result.findOne({ title })))
 
-    const index = Math.floor(Math.random() * count)
-    const title = doc.links[index]
-    const next = await result.findOne({ title })
+    const availableDocs = nextDocs.filter(x => x)
+    const n = availableDocs.length
 
-    if (!next) {
-      console.log('404', title)
-      break
-    }
-
-    doc = next
+    if (!n) return { stack, message: ['not found', nextDocs.filter(x => !x)] }
+    doc = availableDocs[Math.floor(Math.random() * n)]
   }
-
-  return stack
 }
 
-// Promise.all([...Array(100)].map(() => go()))
-//   .then(data => data.reduce((a, b) => a.length < b.length ? b : a))
+database().then(db => surf(db)
+  .then(data => {
+    data.stack.forEach(title => console.log(title))
 
-go()
-  .then(x => console.log(x.length, x))
-  .catch(console.error.bind(console))
+    console.log()
+    console.log(...data.message)
+    console.log('length', data.stack.length)
+    return db.close()
+  })
+  .then(() => console.log('closed'))
+  .catch(console.error.bind(console)))
