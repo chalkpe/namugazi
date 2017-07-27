@@ -37,7 +37,7 @@ async function main (db) {
       console.log('enqueue', next.title)
     }
 
-    console.log(queue.data.length)
+    console.log('queue', queue.data.length, 'set', visitedTitles.size)
     console.log('------------------------------------------------')
   }
 }
