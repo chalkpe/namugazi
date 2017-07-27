@@ -8,6 +8,12 @@ async function main (db) {
   const first = process.env.FIRST
   const last = process.env.LAST
 
+  const d = await result.findOne({ title: last })
+  if (!d) return console.log('last not found')
+
+  const p = await result.findOne({ links: last })
+  if (!p) return console.log('last never referenced')
+
   const queue = new Queue([{ title: first, path: [first] }])
   const visitedTitles = new Set()
 
@@ -18,7 +24,7 @@ async function main (db) {
     console.log('dequeue', item.title)
     visitedTitles.add(item.title)
 
-    if (!process.env.ENQUEUE && item.title === last) {
+    if (process.env.DEQUEUE && item.title === last) {
       console.log('found')
       return fs.writeFileSync('result.txt', item.path.concat('').join('\n'))
     }
@@ -39,13 +45,13 @@ async function main (db) {
         path: item.path.slice().concat(list[i])
       }
 
-      if (process.env.ENQUEUE && next.title === last) {
+      if (!process.env.DEQUEUE && next.title === last) {
         console.log('found')
         return fs.writeFileSync('result.txt', next.path.concat('').join('\n'))
       }
 
       queue.enqueue(next)
-      console.log('enqueue', next.title)
+      if (!process.env.QUIET_ENQUEUE) console.log('enqueue', next.title)
     }
 
     console.log('queue', queue.data.length, 'set', visitedTitles.size)

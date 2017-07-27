@@ -2,10 +2,10 @@
   "name": "namugazi",
   "version": "1.0.0",
   "description": "NamuWiki route finder",
-  "main": "index.js",
+  "main": "src/find.js",
   "scripts": {
     "test": "standard",
-    "wiki": "mongoimport --db namu --collection wiki --type json --drop --jsonArray --file namuwiki_20170327.json"
+    "wiki": "mongoimport --db namu --collection wiki --type json --drop --jsonArray --file namuwiki.json"
   },
   "repository": {
     "type": "git",
