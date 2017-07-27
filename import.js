@@ -13,16 +13,23 @@ const namespacePrefix = {
 
 function parse (text) {
   if (text.toLowerCase().startsWith('#redirect') || text.startsWith('#넘겨주기')) {
-    return [text.substring(text.indexOf(' ') + 1).trim()]
+    let title = text.substring(text.indexOf(' ') + 1)
+
+    const index = title.indexOf('#s-')
+    if (index >= 0) title = title.substring(0, index)
+
+    return [title]
   }
 
   const links = []
   text.replace(link, (match, href, value) => {
     if (href.startsWith('http://') || href.startsWith('https://')) return
-    const index = href.indexOf('#')
 
-    if (index < 0) links.push(href)
-    else href.substring(0, index)
+    const index = href.indexOf('#s-')
+    if (index >= 0) href = href.substring(0, index)
+
+    if (href.startsWith(':분류:')) href = href.substring(1)
+    links.push(href)
   })
 
   return [...new Set(links)].sort()
