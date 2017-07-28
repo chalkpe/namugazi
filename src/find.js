@@ -16,6 +16,7 @@ function save (list) {
 
   console.log()
   list.forEach(title => console.log(title))
+  console.log()
 
   return new Promise((resolve, reject) =>
     fs.writeFile(path, data, (err, res) => err ? reject(err) : resolve(res)))
@@ -61,13 +62,13 @@ async function find (db) {
     for (const title of routes) {
       const path = item.path.concat(title)
 
+      queue.enqueue({ title, path })
+      if (process.env.QUIET_ENQUEUE !== '1') console.log('enqueue', title)
+
       if (process.env.DEQUEUE !== '1' && title === last) {
         console.log('found')
         return save(path)
       }
-
-      queue.enqueue({ title, path })
-      if (process.env.QUIET_ENQUEUE !== '1') console.log('enqueue', title)
     }
 
     if (process.env.QUIET_STATUS !== '1') {

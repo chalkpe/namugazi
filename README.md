@@ -3,6 +3,42 @@
 
 [나무위키](https://namu.wiki)에서 했던 일을 떠올려 보세요. 어느새 처음 봤던 문서와는 전혀 관계없는 문서까지 빙빙 돌아간 경험, 다들 한 번쯤은 겪어 보셨을 겁니다. 하지만 **나뭇가지™** 가 있다면 이제 낭비되는 시간을 걱정할 필요가 없습니다. `FIRST` 문서에서 `LAST` 문서까지 가장 적은 클릭만으로 도착할 수 있는 경로를 [빠르게 찾아주니까요](https://namu.wiki/w/BFS).
 
+## 예시
+`$ FIRST="나무위키:대문" LAST="BFS" node .`
+
+```
+dequeue 나무위키:대문
+enqueue 나무위키
+enqueue 나무위키:FAQ/소유권 이전
+enqueue 분류:나무위키
+...
+dequeue 나무위키
+enqueue 리그베다 위키
+enqueue 데이터베이스
+enqueue 구글
+...
+dequeue 구글
+enqueue 파일:구글.png
+enqueue 유튜브
+enqueue 알고리즘
+...
+dequeue 알고리즘
+enqueue 컴퓨터 과학
+enqueue 프로그래밍
+enqueue 분할 정복법
+enqueue BFS
+found
+
+나무위키:대문
+나무위키
+구글
+알고리즘
+BFS
+
+time 35462
+done
+```
+
 ## 요구사항
 - Git v2.11.0
 - npm v5.3.0
