@@ -70,16 +70,21 @@ async function find (db) {
       if (process.env.QUIET_ENQUEUE !== '1') console.log('enqueue', title)
     }
 
-    console.log('queue', queue.data.length, 'set', visited.size)
-    console.log('------------------------------------------------')
+    if (process.env.QUIET_STATUS !== '1') {
+      console.log('queue', queue.data.length, 'set', visited.size)
+      console.log('------------------------------------------------')
+    }
   }
 }
 
 async function main () {
+  const start = new Date()
   const db = await database()
 
   await find(db)
   await db.close()
+
+  console.log('time', new Date() - start)
 }
 
 main()

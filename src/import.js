@@ -32,7 +32,7 @@ function parse (text) {
     links.push(href)
   })
 
-  return [...new Set(links)].sort()
+  return [...new Set(links)]
 }
 
 function each (cursor, iterator) {
