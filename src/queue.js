@@ -1,13 +1,23 @@
 module.exports = class Queue {
   constructor (data = []) {
-    this.data = data
+    this.inbox = data
+    this.outbox = []
   }
 
   enqueue (item) {
-    this.data.push(item)
+    this.inbox.push(item)
   }
 
   dequeue () {
-    return this.data.shift()
+    if (this.outbox.length === 0) {
+      this.outbox = this.inbox.reverse()
+      this.inbox = []
+    }
+
+    return this.outbox.pop()
+  }
+
+  get length () {
+    return this.inbox.length + this.outbox.length
   }
 }

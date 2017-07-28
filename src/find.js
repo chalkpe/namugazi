@@ -41,8 +41,8 @@ async function find (db) {
     const item = queue.dequeue()
     if (!item) return console.log('empty')
 
-    console.log('dequeue', item.title)
     visited.add(item.title)
+    if (process.env.QUIET_DEQUEUE !== '1') console.log('dequeue', item.title)
 
     if (process.env.DEQUEUE === '1' && item.title === last) {
       console.log('found')
@@ -72,7 +72,7 @@ async function find (db) {
     }
 
     if (process.env.QUIET_STATUS !== '1') {
-      console.log('queue', queue.data.length, 'set', visited.size)
+      console.log('queue', queue.length, 'set', visited.size)
       console.log('------------------------------------------------')
     }
   }
