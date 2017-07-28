@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/ChalkPE/namugazi#readme",
   "dependencies": {
+    "dotenv": "^4.0.0",
     "mongodb": "^2.2.30"
   },
   "devDependencies": {

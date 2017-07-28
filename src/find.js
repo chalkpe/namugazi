@@ -1,68 +1,87 @@
+require('dotenv').config()
+
 const fs = require('fs')
 const database = require('./database')
 const Queue = require('./queue')
 
-async function main (db) {
+const dates = [
+  /^\d+세기$/,
+  /^\d+년$/,
+  /^\d+월 \d+일$/
+]
+
+function save (list) {
+  const path = process.env.RESULT_PATH || './result.txt'
+  const data = list.concat('').join('\n')
+
+  console.log()
+  list.forEach(title => console.log(title))
+
+  return new Promise((resolve, reject) =>
+    fs.writeFile(path, data, (err, res) => err ? reject(err) : resolve(res)))
+}
+
+async function find (db) {
   const result = await db.collection('result')
+  const { FIRST: first, LAST: last } = process.env
 
-  const first = process.env.FIRST
-  const last = process.env.LAST
+  const theLast = await result.findOne({ title: last })
+  if (!theLast) return console.log('last not found')
 
-  const d = await result.findOne({ title: last })
-  if (!d) return console.log('last not found')
+  const xref = await result.findOne({ links: last })
+  if (!xref) return console.log('last never referenced')
 
-  const p = await result.findOne({ links: last })
-  if (!p) return console.log('last never referenced')
-
-  const queue = new Queue([{ title: first, path: [first] }])
-  const visitedTitles = new Set()
+  const visited = new Set()
+  const queue = new Queue([{
+    title: first, path: [first]
+  }])
 
   while (true) {
     const item = queue.dequeue()
     if (!item) return console.log('empty')
 
     console.log('dequeue', item.title)
-    visitedTitles.add(item.title)
+    visited.add(item.title)
 
-    if (process.env.DEQUEUE && item.title === last) {
+    if (process.env.DEQUEUE === '1' && item.title === last) {
       console.log('found')
-      return fs.writeFileSync('result.txt', item.path.concat('').join('\n'))
+      return save(item.path)
     }
 
     const doc = await result.findOne({ title: item.title })
     if (!doc) continue
 
-    const list = doc.links.filter(title => {
-      if (process.env.NO_DATE &&
-        (title.match(/^\d+월 \d+일$/) || title.match(/^\d+년$/))) return false
+    const routes = doc.links.filter(title => {
+      if (process.env.NO_DATE === '1' &&
+        dates.some(regex => title.match(regex))) return false
 
-      return !visitedTitles.has(title)
+      return !visited.has(title) // not yet visited
     })
 
-    for (let i = 0; i < list.length; i++) {
-      const next = {
-        title: list[i],
-        path: item.path.slice().concat(list[i])
-      }
+    for (const title of routes) {
+      const path = item.path.concat(title)
 
-      if (!process.env.DEQUEUE && next.title === last) {
+      if (process.env.DEQUEUE !== '1' && title === last) {
         console.log('found')
-        return fs.writeFileSync('result.txt', next.path.concat('').join('\n'))
+        return save(path)
       }
 
-      queue.enqueue(next)
-      if (!process.env.QUIET_ENQUEUE) console.log('enqueue', next.title)
+      queue.enqueue({ title, path })
+      if (process.env.QUIET_ENQUEUE !== '1') console.log('enqueue', title)
     }
 
-    console.log('queue', queue.data.length, 'set', visitedTitles.size)
+    console.log('queue', queue.data.length, 'set', visited.size)
     console.log('------------------------------------------------')
   }
 }
 
-database()
-  .then(async db => {
-    await main(db)
-    await db.close()
-  })
-  .then(x => console.log('finished'))
-  .catch(e => console.error(e))
+async function main () {
+  const db = await database()
+
+  await find(db)
+  await db.close()
+}
+
+main()
+  .then(() => console.log('done'))
+  .catch(err => console.error(err))
