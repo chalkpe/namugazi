@@ -3,6 +3,16 @@ const database = require('./database')
 /* eslint-disable no-useless-escape */
 const link = /\[\[([^\[\]]+?)(?:\|(.+?))?\]\]/g
 
+const isRedirect = text =>
+  ['#redirect', '#넘겨주기'].some(s => text.toLowerCase().startsWith(s))
+
+const removeTag = title => {
+  const index = title.indexOf('#s-')
+  return index < 0 ? title : title.substring(0, index)
+}
+
+const isExternal = title => /^https?:\/\//.test(title)
+
 const namespacePrefix = {
   '1': '틀:',
   '2': '분류:',
@@ -12,24 +22,17 @@ const namespacePrefix = {
 }
 
 function parse (text) {
-  if (text.toLowerCase().startsWith('#redirect') || text.startsWith('#넘겨주기')) {
-    let title = text.substring(text.indexOf(' ') + 1)
-
-    const index = title.indexOf('#s-')
-    if (index >= 0) title = title.substring(0, index)
-
-    return [title.trim()]
+  if (isRedirect(text)) {
+    const title = text.substring(text.indexOf(' ') + 1)
+    return [removeTag(title).trim()]
   }
 
   const links = []
   text.replace(link, (match, href, value) => {
-    if (href.startsWith('http://') || href.startsWith('https://')) return
-
-    const index = href.indexOf('#s-')
-    if (index >= 0) href = href.substring(0, index)
-
+    if (isExternal(href)) return
     if (href.startsWith(':분류:')) href = href.substring(1)
-    links.push(href)
+
+    links.push(removeTag(href))
   })
 
   return [...new Set(links)]
@@ -53,8 +56,7 @@ async function main () {
   await result.createIndex({ title: 1 }, { unique: true })
   console.log('created index')
 
-  const cursor = wiki
-    .find()
+  const cursor = wiki.find()
     .project({ title: 1, text: 1, namespace: 1 })
 
   const iterator = ({ title, text, namespace }) => {

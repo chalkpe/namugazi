@@ -1,6 +1,6 @@
 module.exports = class Queue {
-  constructor (params) {
-    this.data = params
+  constructor (data = []) {
+    this.data = data
   }
 
   enqueue (item) {

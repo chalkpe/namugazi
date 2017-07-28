@@ -1,4 +1,4 @@
 const { MongoClient } = require('mongodb')
-const url = 'mongodb://localhost:27017/namu'
+const URL = 'mongodb://localhost:27017/namu'
 
-module.exports = () => MongoClient.connect(url)
+module.exports = (url = URL) => MongoClient.connect(url)
