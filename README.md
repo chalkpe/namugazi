@@ -44,16 +44,21 @@ done
 - npm v5.3.0
 - Node.js v8.2.1
 - MongoDB v3.4.6
-- 16GB 이상의 저장 공간
+- 5GB 이상의 메모리
+- 10GB 이상의 저장 공간
 
 ## 사용법
 1. `$ mongod` 명령어로 MongoDB를 켜세요. `systemctl` 쓰셔도 되고!
-1. 이 저장소를 복제하세요. `$ git clone https://github.com/ChalkPE/namugazi.git`
+1. `$ git clone https://github.com/ChalkPE/namugazi.git` 명령어로 이 저장소를 복제하세요.
 1. [나무위키:데이터베이스 덤프](https://namu.wiki/w/%EB%82%98%EB%AC%B4%EC%9C%84%ED%82%A4%3A%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4%20%EB%8D%A4%ED%94%84)에서 JSON 파일을 받으세요. 이거 용량이 장난 아니에요. 약 8GB.
 1. `namugazi` 폴더로 다운로드한 JSON 파일을 옮기고, `namuwiki.json`로 이름을 바꾸세요.
 1. `namugazi` 폴더에서 `$ npm run wiki` 명령어를 입력해 나무위키 데이터를 불러오세요.
-1. `$ FIRST="제이나 프라우드무어" LAST=빛나래 node .` 명령어를 입력하세요.
-1. `node` 프로세스가 종료되고 나면 `namugazi/result.txt` 파일에 실행 결과가 저장됩니다.
+1. 준비 완료! 이제 `$ FIRST="제이나 프라우드무어" LAST=빛나래 node .` 명령어를 입력해 보세요.
+
+## 스크립트
+- `$ npm test` - 코드 스타일 검사입니다. 별다른 동작 테스트는 만들기 귀찮아서...
+- `$ npm run wiki` - `mongoimport` 명령어를 사용해 나무위키 데이터를 불러옵니다.
+- `$ npm run surf` - 랜덤 문서에서 더 이상 링크가 안 나올 때까지 무작위로 이동한 결과를 출력합니다.
 
 ## 환경변수
 | 이름 | 설명 |

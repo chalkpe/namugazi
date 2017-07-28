@@ -7,22 +7,23 @@ async function surf (db) {
   const result = await db.collection('result')
 
   const stack = []
+  const visited = new Set()
+
   let doc = (await aggregate(result, [{ $sample: { size: 1 } }]))[0]
 
   while (true) {
     stack.push(doc.title)
+    visited.add(doc.title)
 
-    const count = doc.links.length
-    if (!count) return { stack, message: ['no links at', doc.title] }
+    const links = doc.links.filter(link => !visited.has(link))
+    if (!links.length) return { stack, message: '204' }
 
-    const nextDocs = await Promise.all(
-      doc.links.map(title => result.findOne({ title })))
+    const routes = links.map(title => result.findOne({ title }))
+    const available = (await Promise.all(routes)).filter(x => x)
+    const n = available.length
 
-    const availableDocs = nextDocs.filter(x => x)
-    const n = availableDocs.length
-
-    if (!n) return { stack, message: ['not found', nextDocs.filter(x => !x)] }
-    doc = availableDocs[Math.floor(Math.random() * n)]
+    if (!n) return { stack, message: '404' }
+    doc = available[Math.floor(Math.random() * n)]
   }
 }
 
@@ -31,8 +32,8 @@ database().then(db => surf(db)
     data.stack.forEach(title => console.log(title))
 
     console.log()
-    console.log(...data.message)
-    console.log('length', data.stack.length)
+    console.log(data.message, 'size', data.stack.length)
+
     return db.close()
   })
   .then(() => console.log('closed'))
