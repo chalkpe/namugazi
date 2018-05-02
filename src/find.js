@@ -1,8 +1,10 @@
 require('dotenv').config()
 
 const fs = require('fs')
-const database = require('./database')
+
 const Queue = require('./queue')
+const logger = require('./logger')
+const database = require('./database')
 
 const dates = [
   /^\d+세기$/,
@@ -42,7 +44,7 @@ async function find (db) {
     if (!item) return console.log('empty')
 
     visited.add(item.title)
-    if (process.env.QUIET_DEQUEUE !== '1') console.log('dequeue', item.title)
+    if (process.env.QUIET_DEQUEUE !== '1') logger.dequeue(item)
 
     const doc = await result.findOne({ title: item.title })
     if (!doc) continue
@@ -58,7 +60,7 @@ async function find (db) {
       const path = item.path.concat(title)
 
       queue.enqueue({ title, path })
-      if (process.env.QUIET_ENQUEUE !== '1') console.log('enqueue', item.title, '->', title)
+      if (process.env.QUIET_ENQUEUE !== '1') logger.enqueue(item, title)
 
       if (title === last) {
         console.log('found', last)
@@ -66,10 +68,7 @@ async function find (db) {
       }
     }
 
-    if (process.env.QUIET_STATUS !== '1') {
-      console.log('status: queue', queue.length, 'visited', visited.size)
-      console.log('------------------------------------------------')
-    }
+    if (process.env.QUIET_STATUS !== '1') logger.status(queue, visited)
   }
 }
 
