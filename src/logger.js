@@ -1,10 +1,52 @@
-module.exports = {
-  enqueue: (item, child) =>
-    console.log('enqueue', item.title, '->', child),
+const { h, Component, Color } = require('ink')
 
-  dequeue: item =>
-    console.log('dequeue', item.title),
+class Logger extends Component {
+	constructor() {
+		super()
+		this.state = {
+			path: [],
+      next: '',
+      queueLength: 0,
+      visitedLength: 0
+		}
+	}
 
-  status: (queue, visited) =>
-    console.log('status: queue', queue.length, 'visited', visited.size)
+	render (props, state) {
+		return (
+      <div>
+        {state.path.join(' -> ')}
+        {state.next ? ' ~~> ' + state.next : ''}
+        <br />
+
+        <Color green>
+          queue: {state.queueLength}
+          visited: {state.visitedLength}
+        </Color>
+      </div>
+    )
+	}
+
+  enqueue (item, child) {
+    this.setState({
+      path: item.path,
+      next: child
+    })
+  }
+
+  dequeue (item) {
+    this.setState({
+      path: item.path,
+      next: ''
+    })
+  }
+
+  status (queue, visited) {
+    this.setState({
+      queueLength: queue.length,
+      visitedLength: visited.size
+    })
+  }
+
 }
+
+module.exports = () => <Logger />

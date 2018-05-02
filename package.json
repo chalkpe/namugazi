@@ -6,7 +6,8 @@
   "scripts": {
     "test": "standard",
     "surf": "node src/surf.js",
-    "wiki": "mongoimport --db namu --collection wiki --type json --drop --jsonArray --file namuwiki.json && node src/import"
+    "wiki": "mongoimport --db namu --collection wiki --type json --drop --jsonArray --file namuwiki.json && node src/import",
+    "start": "babel-node ."
   },
   "repository": {
     "type": "git",
@@ -25,9 +26,18 @@
   "homepage": "https://github.com/ChalkPE/namugazi#readme",
   "dependencies": {
     "dotenv": "^4.0.0",
+    "ink": "^0.5.0",
     "mongodb": "^2.2.30"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0-beta.46",
+    "@babel/node": "^7.0.0-beta.46",
+    "@babel/plugin-transform-react-jsx": "^7.0.0-beta.46",
     "standard": "^10.0.2"
+  },
+  "babel": {
+    "plugins": [
+      ["@babel/plugin-transform-react-jsx", { "pragma": "h" } ]
+    ]
   }
 }

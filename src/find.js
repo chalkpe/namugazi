@@ -1,9 +1,10 @@
 require('dotenv').config()
 
 const fs = require('fs')
+const ink = require('ink')
 
 const Queue = require('./queue')
-const logger = require('./logger')
+const Logger = require('./logger')
 const database = require('./database')
 
 const dates = [
@@ -24,7 +25,7 @@ function save (list) {
     fs.writeFile(path, data, (err, res) => err ? reject(err) : resolve(res)))
 }
 
-async function find (db) {
+async function find (db, logger) {
   const result = await db.collection('result')
   const { FIRST: first, LAST: last } = process.env
 
@@ -63,7 +64,9 @@ async function find (db) {
       if (process.env.QUIET_ENQUEUE !== '1') logger.enqueue(item, title)
 
       if (title === last) {
+        console.log()
         console.log('found', last)
+
         return save(path)
       }
     }
@@ -76,7 +79,10 @@ async function main () {
   const start = new Date()
   const db = await database()
 
-  await find(db)
+  const logger = Logger()
+  ink.render(logger)
+
+  await find(db, logger)
   await db.close()
 
   console.log('time', new Date() - start)
