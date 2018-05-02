@@ -6,7 +6,7 @@
   "scripts": {
     "test": "standard",
     "surf": "node src/surf.js",
-    "wiki": "mongoimport --db namu --collection wiki --type json --drop --jsonArray --file namuwiki.json"
+    "wiki": "mongoimport --db namu --collection wiki --type json --drop --jsonArray --file namuwiki.json && node src/import"
   },
   "repository": {
     "type": "git",

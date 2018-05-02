@@ -44,11 +44,6 @@ async function find (db) {
     visited.add(item.title)
     if (process.env.QUIET_DEQUEUE !== '1') console.log('dequeue', item.title)
 
-    if (process.env.DEQUEUE === '1' && item.title === last) {
-      console.log('found')
-      return save(item.path)
-    }
-
     const doc = await result.findOne({ title: item.title })
     if (!doc) continue
 
@@ -63,16 +58,16 @@ async function find (db) {
       const path = item.path.concat(title)
 
       queue.enqueue({ title, path })
-      if (process.env.QUIET_ENQUEUE !== '1') console.log('enqueue', title)
+      if (process.env.QUIET_ENQUEUE !== '1') console.log('enqueue', item.title, '->', title)
 
-      if (process.env.DEQUEUE !== '1' && title === last) {
-        console.log('found')
+      if (title === last) {
+        console.log('found', last)
         return save(path)
       }
     }
 
     if (process.env.QUIET_STATUS !== '1') {
-      console.log('queue', queue.length, 'set', visited.size)
+      console.log('status: queue', queue.length, 'visited', visited.size)
       console.log('------------------------------------------------')
     }
   }
