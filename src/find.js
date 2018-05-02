@@ -1,11 +1,4 @@
-require('dotenv').config()
-
 const fs = require('fs')
-const ink = require('ink')
-
-const Queue = require('./queue')
-const Logger = require('./logger')
-const database = require('./database')
 
 const dates = [
   /^\d+세기$/,
@@ -15,34 +8,24 @@ const dates = [
 
 function save (list) {
   const path = process.env.RESULT_PATH || './result.txt'
-  const data = list.concat('').join('\n')
-
-  console.log()
-  list.forEach(title => console.log(title))
-  console.log()
+  const data = list.concat('').join('\n') // newline at end
 
   return new Promise((resolve, reject) =>
     fs.writeFile(path, data, (err, res) => err ? reject(err) : resolve(res)))
 }
 
-async function find (db, logger) {
-  const result = await db.collection('result')
+async function find (db, visited, queue, logger) {
+  const noDate = process.env.NO_DATE === '1'
   const { FIRST: first, LAST: last } = process.env
 
-  const theLast = await result.findOne({ title: last })
-  if (!theLast) return console.log('last not found')
+  const result = await db.collection('result')
+  if (!(await result.findOne({ title: last }))) return { error: 'last not found' }
+  if (!(await result.findOne({ links: last }))) return { error: 'last never referenced' }
 
-  const xref = await result.findOne({ links: last })
-  if (!xref) return console.log('last never referenced')
-
-  const visited = new Set()
-  const queue = new Queue([{
-    title: first, path: [first]
-  }])
-
+  queue.enqueue({ title: first, path: [first] })
   while (true) {
     const item = queue.dequeue()
-    if (!item) return console.log('empty')
+    if (!item) return { error: 'queue is empty' }
 
     visited.add(item.title)
     if (process.env.QUIET_DEQUEUE !== '1') logger.dequeue(item)
@@ -51,9 +34,7 @@ async function find (db, logger) {
     if (!doc) continue
 
     const routes = doc.links.filter(title => {
-      if (process.env.NO_DATE === '1' &&
-        dates.some(regex => title.match(regex))) return false
-
+      if (noDate && dates.some(regex => title.match(regex))) return false
       return !visited.has(title) // not yet visited
     })
 
@@ -64,10 +45,8 @@ async function find (db, logger) {
       if (process.env.QUIET_ENQUEUE !== '1') logger.enqueue(item, title)
 
       if (title === last) {
-        console.log()
-        console.log('found', last)
-
-        return save(path)
+        await save(path)
+        return { error: null, result: path }
       }
     }
 
@@ -75,19 +54,4 @@ async function find (db, logger) {
   }
 }
 
-async function main () {
-  const start = new Date()
-  const db = await database()
-
-  const logger = Logger()
-  ink.render(logger)
-
-  await find(db, logger)
-  await db.close()
-
-  console.log('time', new Date() - start)
-}
-
-main()
-  .then(() => console.log('done'))
-  .catch(err => console.error(err))
+module.exports = find

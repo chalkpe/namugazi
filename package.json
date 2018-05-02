@@ -2,10 +2,10 @@
   "name": "namugazi",
   "version": "1.0.0",
   "description": "NamuWiki route finder",
-  "main": "src/find.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "standard",
-    "surf": "node src/surf.js",
+    "surf": "node src/surf",
     "wiki": "mongoimport --db namu --collection wiki --type json --drop --jsonArray --file namuwiki.json && node src/import",
     "start": "babel-node ."
   },
@@ -27,6 +27,7 @@
   "dependencies": {
     "dotenv": "^4.0.0",
     "ink": "^0.5.0",
+    "ink-box": "^0.1.0",
     "mongodb": "^2.2.30"
   },
   "devDependencies": {
@@ -37,7 +38,12 @@
   },
   "babel": {
     "plugins": [
-      ["@babel/plugin-transform-react-jsx", { "pragma": "h" } ]
+      [
+        "@babel/plugin-transform-react-jsx",
+        {
+          "pragma": "h"
+        }
+      ]
     ]
   }
 }
