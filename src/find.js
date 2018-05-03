@@ -25,12 +25,10 @@ module.exports = async function find (db, visited, queue, logger) {
   if (useLink) queue.enqueue({ title: FIRST, prev: null })
   else queue.enqueue({ title: FIRST, path: [FIRST] })
 
-
-
   while (true) {
     const item = queue.dequeue()
-    if (printDequeue) logger.dequeue(item)
     if (!item) return { error: 'queue is empty' }
+    if (printDequeue) logger.dequeue(item)
 
     const doc = await col.findOne({ title: item.title })
     if (!doc) continue // referenced invalid doc (broken link)
@@ -46,7 +44,7 @@ module.exports = async function find (db, visited, queue, logger) {
       if (title === LAST) return { error: null, result: next }
 
       queue.enqueue(next)
-      visited.add(item.title)
+      visited.add(title)
       if (printEnqueue) logger.enqueue(next)
     }
 
