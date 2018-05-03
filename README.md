@@ -40,6 +40,8 @@
 
 환경변수를 설정하기 힘들거나 매번 입력하는 게 귀찮으시다면 `.env` 파일에 설정을 저장해 두세요. `.env` 파일의 자세한 사용법은 [dotenv] 저장소에 예쁘게 설명되어 있습니다.
 
+![Example (with dequeue)](example-dequeue.gif)
+
 ## 라이선스
 [MIT 라이선스](LICENSE) 하에 배포됩니다.
 
