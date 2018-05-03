@@ -5,9 +5,10 @@
   "main": "src/index.js",
   "scripts": {
     "test": "standard",
-    "surf": "node src/surf",
-    "wiki": "mongoimport --db namu --collection wiki --type json --drop --jsonArray --file namuwiki.json && node src/import",
-    "start": "babel-node ."
+    "surf": "babel-node src/surf",
+    "start": "babel-node src",
+    "big": "babel src -d dist && node --max_old_space_size=8192 dist",
+    "wiki": "mongoimport --db namu --collection wiki --type json --drop --jsonArray --file namuwiki.json && node src/import"
   },
   "repository": {
     "type": "git",

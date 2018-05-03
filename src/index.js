@@ -4,6 +4,7 @@ const { h, render, Component, Color } = require('ink')
 const Box = require('ink-box')
 
 const find = require('./find')
+const link = require('./link')
 const Queue = require('./queue')
 const database = require('./database')
 
@@ -15,51 +16,39 @@ class Namugazi extends Component {
       visited: new Set(),
       queue: new Queue(),
 
-      path: [],
-      next: '',
-
       error: '',
-      result: []
+      item: null,
+      result: null
     }
   }
 
   render (props, state) {
     const status = (
       <Color cyan>
-        queue: {state.queue.length || 'unknown'}
-        {'\t'}
-        visited: {state.visited.size || 'unknown'}
+        Queue size: {state.queue.length || 'unknown'}
+        <br />
+        Visited nodes: {state.visited.size || 'unknown'}
       </Color>
     )
 
-    const path = state.result.length ? (
-      <Box borderStyle="round" borderColor="green" padding={1}>
-        {state.result.join('\n-> ')}
-      </Box>
-    ) : state.path.length ? (
-      <Box borderStyle="round" padding={1}>
-        {state.path.join('\n-> ')}
-        {state.next ? `\n~~> ${state.next}` : ''}
-      </Box>
-    ) : (
-      <div>
-        <Box borderStyle="round" padding={1}>
-          Calculating...
-        </Box>
-      </div>
+    const colour = state.result ? 'green' : 'white'
+    const content = link(state.result || state.item).join('\n-> ') || 'Searching...'
+
+    const path = [
+      <br />,
+      <Box padding={1} borderStyle="round" borderColor={colour}>{content}</Box>
+    ]
+
+    const error = state.error && (
+      <Color red>
+        <br />
+        {state.error}
+      </Color>
     )
 
     return (
       <div>
-        {status}
-        <br />
-        {path}
-        {state.error && (
-          <Color red>
-            <br />
-            {state.error}
-          </Color>
-        )}
+        {[status, path, error]}
       </div>
     )
   }
@@ -69,8 +58,8 @@ class Namugazi extends Component {
     const { visited, queue } = this.state
 
     const logger = {
-      dequeue: item => this.setState({ path: item.path }),
-      enqueue: (item, next) => this.setState({ path: item.path, next }),
+      enqueue: item => this.setState({ item }),
+      dequeue: item => this.setState({ item }),
       status: (queue, visited) => this.setState({ queue, visited })
     }
 
