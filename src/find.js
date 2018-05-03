@@ -9,11 +9,11 @@ const isBanned = title =>
   && dates.some(regex => title.match(regex))
 
 module.exports = async function find (db, visited, queue, logger) {
-  const { FIRST, LAST, QUIET_ENQUEUE, QUIET_DEQUEUE, QUIET_STATUS } = process.env
+  const { FIRST, LAST, PRINT_ENQUEUE, PRINT_DEQUEUE, MUTE_STATUS } = process.env
 
-  const printStatus = QUIET_STATUS !== '1'
-  const printEnqueue = QUIET_ENQUEUE !== '1'
-  const printDequeue = QUIET_DEQUEUE !== '1'
+  const printStatus = MUTE_STATUS !== '1'
+  const printEnqueue = PRINT_ENQUEUE === '1'
+  const printDequeue = PRINT_DEQUEUE === '1'
 
   const useLink = !printEnqueue && !printDequeue
 
