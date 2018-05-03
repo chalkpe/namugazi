@@ -7,36 +7,17 @@
 `$ FIRST="나무위키:대문" LAST="BFS" npm start`
 
 ```
-dequeue 나무위키:대문
-enqueue 나무위키
-enqueue 나무위키:FAQ/소유권 이전
-enqueue 분류:나무위키
-...
-dequeue 나무위키
-enqueue 리그베다 위키
-enqueue 데이터베이스
-enqueue 구글
-...
-dequeue 구글
-enqueue 파일:구글.png
-enqueue 유튜브
-enqueue 알고리즘
-...
-dequeue 알고리즘
-enqueue 컴퓨터 과학
-enqueue 프로그래밍
-enqueue 분할 정복법
-enqueue BFS
-found
-
-나무위키:대문
-나무위키
-구글
-알고리즘
-BFS
-
-time 35462
-done
+Queue size: 237874
+Visited nodes: 248873
+╭───────────────────╮
+│                   │
+│   나무위키:대문   │
+│   -> 나무위키     │
+│   -> 위키백과     │
+│   -> 알고리즘     │
+│   -> BFS          │
+│                   │
+╰───────────────────╯
 ```
 
 ## 요구사항
