@@ -29,7 +29,7 @@
     "dotenv": "^4.0.0",
     "ink": "^0.5.0",
     "ink-box": "^0.1.0",
-    "mongodb": "^2.2.30"
+    "mongodb": "^3.1.13"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.46",
